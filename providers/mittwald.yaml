@@ -1,0 +1,40 @@
+#ddev-generated
+
+auth_command:
+  command: |
+    set -e -o pipefail
+
+    if [ -z "${MITTWALD_API_TOKEN}" ] ; then
+      echo "MITTWALD_API_TOKEN must be set"
+      exit 1
+    fi
+
+    mw context set --installation-id "${MITTWALD_APP_INSTALLATION_ID}"
+    mw context set --project-id "$(mw app get -ojson | jq -r '.projectId')"
+
+    mw app ssh --test
+
+db_pull_command:
+  command: |
+    set -e -o pipefail
+    DATABASE_ID=$(mw app get -ojson | jq -r '(.linkedDatabases[] | select(.purpose = "primary")).databaseId')
+    mw database mysql dump "${DATABASE_ID}" --gzip -o /var/www/html/.ddev/.downloads/db.sql.gz
+
+files_import_command:
+  command: |
+    set -e -o pipefail
+    mw app download --target "${DDEV_FILES_DIR}"
+
+# push is a dangerous command. If not absolutely needed it's better to delete these lines.
+db_push_command:
+  command: |
+    set -eu -o pipefail
+    pushd /var/www/html/.ddev/.downloads >/dev/null;
+    DATABASE_ID=$(mw app get -ojson | jq -r '(.linkedDatabases[] | select(.purpose = "primary")).databaseId')
+    gzip -dc db.sql.gz | mittwald database mysql import "${DATABASE_ID}" -i -
+
+# push is a dangerous command. If not absolutely needed it's better to delete these lines.
+files_push_command:
+  command: |
+    set -eu -o pipefail
+    mw app upload --source "${DDEV_FILES_DIR}"
