@@ -17,13 +17,18 @@ pre_install_actions:
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_API_TOKEN" (list .DdevGlobalConfig.web_environment | toString) }} || {{ contains "MITTWALD_API_TOKEN" (list .DdevProjectConfig.web_environment | toString) }} ); then
     if [[ -n "${DDEV_NONINTERACTIVE}" ]] ; then
-      echo "MITTWALD_API_TOKEN not set; please provide one in the web_environment configuration" >&2
-      exit 1
+      if [[ -n "${MITTWALD_API_TOKEN}" ]] ; then
+        ddev config global --web-environment-add MITTWALD_API_TOKEN=${MITTWALD_API_TOKEN}
+        echo "MITTWALD_API_TOKEN set globally"
+      else
+        echo "MITTWALD_API_TOKEN not set; please provide one in the web_environment configuration" >&2
+        exit 1
+      fi
+    else
+      read -s token
+      ddev config global --web-environment-add MITTWALD_API_TOKEN=${token}
+      echo "MITTWALD_API_TOKEN set globally"
     fi
-
-    read -s token
-    ddev config global --web-environment-add MITTWALD_API_TOKEN=${token}
-    echo "MITTWALD_API_TOKEN set globally"
   fi
 
 - |
@@ -37,11 +42,16 @@ pre_install_actions:
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_APP_INSTALLATION_ID" (list .DdevProjectConfig.web_environment | toString) }} ); then
     if [[ -n "${DDEV_NONINTERACTIVE}" ]] ; then
-      echo "MITTWALD_APP_INSTALLATION_ID not set; please provide one in the web_environment configuration" >&2
-      exit 1
+      if [[ -n "${MITTWALD_APP_INSTALLATION_ID}" ]] ; then
+        ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${MITTWALD_APP_INSTALLATION_ID}
+      else
+        echo "MITTWALD_APP_INSTALLATION_ID not set; please provide one in the web_environment configuration" >&2
+        exit 1
+      fi
+    else
+      read app_id
+      ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${app_id}
     fi
-    read app_id
-    ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${app_id}
   fi
 
 

@@ -32,6 +32,7 @@ jobs:
       - uses: ddev/github-action-add-on-test@v1
         env:
           MITTWALD_API_TOKEN: foo
+          MITTWALD_APP_INSTALLATION_ID: a-XXXXXX
         with:
           ddev_version: ${{ matrix.ddev_version }}
           token: ${{ secrets.GITHUB_TOKEN }}
