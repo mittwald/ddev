@@ -85,7 +85,7 @@ post_install_actions:
   {{ end }}
   {{ end }}
   
-  if [ -e config.mittwald.yaml ] ; then
+  if [[ -e config.mittwald.yaml || -n "${MITTWALD_SKIP_CONFIG}" ]] ; then
     echo "mittwald specific config file already exists"
   else
     docker run --rm -e MITTWALD_API_TOKEN mittwald/cli mw ddev render-config "${MITTWALD_APP_INSTALLATION_ID}" > config.mittwald.yaml

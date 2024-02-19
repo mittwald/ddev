@@ -33,6 +33,7 @@ jobs:
         env:
           MITTWALD_API_TOKEN: foo
           MITTWALD_APP_INSTALLATION_ID: a-XXXXXX
+          MITTWALD_SKIP_CONFIG: yes
         with:
           ddev_version: ${{ matrix.ddev_version }}
           token: ${{ secrets.GITHUB_TOKEN }}
