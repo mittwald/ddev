@@ -16,6 +16,11 @@ pre_install_actions:
   #ddev-description:set mittwald API token
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_API_TOKEN" (list .DdevGlobalConfig.web_environment | toString) }} || {{ contains "MITTWALD_API_TOKEN" (list .DdevProjectConfig.web_environment | toString) }} ); then
+    if [[ -n "${DDEV_NONINTERACTIVE}" ]] ; then
+      echo "MITTWALD_API_TOKEN not set; please provide one in the web_environment configuration" >&2
+      exit 1
+    fi
+
     read -s token
     ddev config global --web-environment-add MITTWALD_API_TOKEN=${token}
     echo "MITTWALD_API_TOKEN set globally"
