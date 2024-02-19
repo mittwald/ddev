@@ -36,6 +36,10 @@ pre_install_actions:
   #ddev-description:set mittwald app installation ID
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_APP_INSTALLATION_ID" (list .DdevProjectConfig.web_environment | toString) }} ); then
+    if [[ -n "${DDEV_NONINTERACTIVE}" ]] ; then
+      echo "MITTWALD_APP_INSTALLATION_ID not set; please provide one in the web_environment configuration" >&2
+      exit 1
+    fi
     read app_id
     ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${app_id}
   fi
