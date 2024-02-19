@@ -35,9 +35,14 @@ teardown() {
 
 @test "install from release" {
   set -eu -o pipefail
+
+  if [[ "${GITHUB_EVENT_NAME}" == "pull_request" ]] ; then
+    skip "skipping 'install from release' in pull request pipelines"
+  fi
+
   cd ${TESTDIR} || ( printf "unable to cd to ${TESTDIR}\n" && exit 1 )
   echo "# ddev get ddev/ddev-addon-template with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
-  ddev get ddev/ddev-addon-template
+  ddev get mittwald/ddev
   ddev restart >/dev/null
   health_checks
 }
