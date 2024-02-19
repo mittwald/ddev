@@ -16,19 +16,18 @@ pre_install_actions:
   #ddev-description:set mittwald API token
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_API_TOKEN" (list .DdevGlobalConfig.web_environment | toString) }} || {{ contains "MITTWALD_API_TOKEN" (list .DdevProjectConfig.web_environment | toString) }} ); then
-    if [[ -n "${DDEV_NONINTERACTIVE}" ]] ; then
-      if [[ -n "${MITTWALD_API_TOKEN}" ]] ; then
-        ddev config global --web-environment-add MITTWALD_API_TOKEN=${MITTWALD_API_TOKEN}
-        echo "MITTWALD_API_TOKEN set globally"
-      else
-        echo "MITTWALD_API_TOKEN not set; please provide one in the web_environment configuration" >&2
-        exit 1
-      fi
-    else
+    token="${MITTWALD_API_TOKEN}"
+    if [[ -z "${token}" && -z "${DDEV_NONINTERACTIVE}" ]] ; then
       read -s token
-      ddev config global --web-environment-add MITTWALD_API_TOKEN=${token}
-      echo "MITTWALD_API_TOKEN set globally"
     fi
+
+    if [[ -z "${token}" ]] ; then
+      echo "MITTWALD_API_TOKEN not set; please provide one in the web_environment configuration" >&2
+      exit 1
+    fi
+
+    ddev config global --web-environment-add MITTWALD_API_TOKEN=${token}
+    echo "MITTWALD_API_TOKEN set globally"
   fi
 
 - |
@@ -41,17 +40,17 @@ pre_install_actions:
   #ddev-description:set mittwald app installation ID
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_APP_INSTALLATION_ID" (list .DdevProjectConfig.web_environment | toString) }} ); then
-    if [[ -n "${DDEV_NONINTERACTIVE}" ]] ; then
-      if [[ -n "${MITTWALD_APP_INSTALLATION_ID}" ]] ; then
-        ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${MITTWALD_APP_INSTALLATION_ID}
-      else
-        echo "MITTWALD_APP_INSTALLATION_ID not set; please provide one in the web_environment configuration" >&2
-        exit 1
-      fi
-    else
+    app_id="${MITTWALD_APP_INSTALLATION_ID}"
+    if [[ -z "${app_id}" && -e "${DDEV_NONINTERACTIVE}" ]] ; then
       read app_id
-      ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${app_id}
     fi
+
+    if [[ -z "${app_id}" ]] ; then
+      echo "MITTWALD_APP_INSTALLATION_ID not set; please provide one in the web_environment configuration" >&2
+      exit 1
+    fi
+
+    ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${app_id}
   fi
 
 
