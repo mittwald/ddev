@@ -17,8 +17,16 @@ auth_command:
 db_pull_command:
   command: |
     set -e -o pipefail
-    DATABASE_ID=$(mw app get -ojson | jq -r '(.linkedDatabases[] | select(.purpose = "primary")).databaseId')
-    mw database mysql dump "${DATABASE_ID}" --gzip -o /var/www/html/.ddev/.downloads/db.sql.gz
+
+    database_output="/var/www/html/.ddev/.downloads/db.sql.gz"
+    database_id=$(mw app get -ojson | jq -r 'if has("linkedDatabases") then ((.linkedDatabases[] | select(.purpose == "primary")).databaseId) else empty end')
+
+    if [[ -n "${database_id:-}" ]] ; then
+      mw database mysql dump "${database_id}" --gzip -o "${database_output}"
+    else
+      echo "app has no linked database; skipping database import"
+      echo "" | gzip > "${database_output}"
+    fi
 
 files_import_command:
   command: |
