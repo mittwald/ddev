@@ -35,6 +35,9 @@ teardown() {
 @test "install from directory" {
   set -eu -o pipefail
   cd ${TESTDIR}
+
+  export MITTWALD_SKIP_CONFIG=yes
+
   echo "# ddev get ${DIR} with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
   ddev get ${DIR}
   ddev restart
@@ -42,8 +45,13 @@ teardown() {
 
 @test "can pull code from remote" {
   cd ${TESTDIR}
+
+  export MITTWALD_SKIP_CONFIG=yes
+  
   ddev get ${DIR}
   ddev restart
+
+  echo "# ddev pull with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
   ddev pull mittwald
 
   health_checks
@@ -56,8 +64,10 @@ teardown() {
     skip "skipping 'install from release' in pull request pipelines"
   fi
 
+  export MITTWALD_SKIP_CONFIG=yes
+
   cd ${TESTDIR} || ( printf "unable to cd to ${TESTDIR}\n" && exit 1 )
-  echo "# ddev get ddev/ddev-addon-template with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
+  echo "# ddev get mittwald/ddev with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
   ddev get mittwald/ddev
   ddev restart >/dev/null
   health_checks
