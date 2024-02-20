@@ -7,14 +7,22 @@ setup() {
   export DDEV_NON_INTERACTIVE=true
   ddev delete -Oy ${PROJNAME} >/dev/null 2>&1 || true
   cd "${TESTDIR}"
-  ddev config --project-name=${PROJNAME}
+  ddev config \
+    --project-name=${PROJNAME} \
+    --web-environment-add=MITTWALD_API_TOKEN=${MITTWALD_API_TOKEN} \
+    --web-environment-add=MITTWALD_APP_INSTALLATION_ID=${MITTWALD_APP_INSTALLATION_ID}
   ddev start -y >/dev/null
+}
+
+setup_ssh() {
+  mkdir -p ~/.ssh
+  echo "${MITTWALD_SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
 }
 
 health_checks() {
   # Do something useful here that verifies the add-on
   # ddev exec "curl -s elasticsearch:9200" | grep "${PROJNAME}-elasticsearch"
-  ddev exec "curl -s https://localhost:443/"
+  ddev exec "curl -s https://localhost:443/" | grep "Hello world"
 }
 
 teardown() {
@@ -30,6 +38,14 @@ teardown() {
   echo "# ddev get ${DIR} with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
   ddev get ${DIR}
   ddev restart
+}
+
+@test "can pull code from remote" {
+  cd ${TESTDIR}
+  ddev get ${DIR}
+  ddev restart
+  ddev pull mittwald
+
   health_checks
 }
 
