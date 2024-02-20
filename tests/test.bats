@@ -1,5 +1,8 @@
 setup() {
   set -eu -o pipefail
+
+  setup_ssh
+
   export DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )/.."
   export TESTDIR=~/tmp/test-addon-template
   mkdir -p $TESTDIR
@@ -10,7 +13,8 @@ setup() {
   ddev config \
     --project-name=${PROJNAME} \
     --web-environment-add=MITTWALD_API_TOKEN=${MITTWALD_API_TOKEN} \
-    --web-environment-add=MITTWALD_APP_INSTALLATION_ID=${MITTWALD_APP_INSTALLATION_ID}
+    --web-environment-add=MITTWALD_APP_INSTALLATION_ID=${MITTWALD_APP_INSTALLATION_ID} \
+    --web-environment-add=MITTWALD_SSH_USER=${MITTWALD_SSH_USER}
   ddev start -y >/dev/null
 }
 
@@ -32,6 +36,12 @@ teardown() {
   [ "${TESTDIR}" != "" ] && rm -rf ${TESTDIR}
 }
 
+setup_ssh_in_ddev() {
+  ddev exec 'mkdir -p $HOME/.ssh'
+  echo "${MITTWALD_SSH_PRIVATE_KEY}" | ddev exec --raw -- bash -c 'cat > $HOME/.ssh/id_rsa'
+  ddev exec 'chmod 600 $HOME/.ssh/id_rsa'
+}
+
 @test "install from directory" {
   set -eu -o pipefail
   cd ${TESTDIR}
@@ -44,16 +54,21 @@ teardown() {
 }
 
 @test "can pull code from remote" {
+  set -eu -o pipefail
+
   cd ${TESTDIR}
 
   export MITTWALD_SKIP_CONFIG=yes
-  
+
   ddev get ${DIR}
   ddev restart
 
+  echo "${MITTWALD_SSH_PRIVATE_KEY}" | docker exec -i ddev-ssh-agent ssh-add -
+  #setup_ssh_in_ddev
+  
   echo "# ddev pull with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
-  ddev pull mittwald
-
+  ddev pull mittwald >&3
+  
   health_checks
 }
 
