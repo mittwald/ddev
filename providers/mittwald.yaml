@@ -37,7 +37,7 @@ files_import_command:
     set -e -o pipefail
     set -x
 
-    mw app download --target "${DDEV_FILES_DIR}"
+    mw app download --target /var/www/html
 
 # push is a dangerous command. If not absolutely needed it's better to delete these lines.
 db_push_command:
@@ -51,4 +51,4 @@ db_push_command:
 files_push_command:
   command: |
     set -eu -o pipefail
-    mw app upload --source "${DDEV_FILES_DIR}"
+    mw app upload --source /var/www/html/
