@@ -68,8 +68,10 @@ setup_ssh_in_ddev() {
   
   echo "# ddev pull with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
   ddev pull mittwald >&3
+
+  ls -al . >&3
   
-  health_checks
+  test -e assertion_file
 }
 
 @test "install from release" {
