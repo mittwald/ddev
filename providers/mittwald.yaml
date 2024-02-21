@@ -2,8 +2,7 @@
 
 auth_command:
   command: |
-    set -e -o pipefail
-    set -x
+    set -eu -o pipefail
 
     if [ -z "${MITTWALD_API_TOKEN}" ] ; then
       echo "MITTWALD_API_TOKEN must be set"
@@ -19,8 +18,7 @@ auth_command:
 
 db_pull_command:
   command: |
-    set -e -o pipefail
-    set -x
+    set -eu -o pipefail
 
     database_output="/var/www/html/.ddev/.downloads/db.sql.gz"
     database_id=$(mw app get -ojson | jq -r 'if has("linkedDatabases") then ((.linkedDatabases[] | select(.purpose == "primary")).databaseId) else empty end')
@@ -34,8 +32,7 @@ db_pull_command:
 
 files_import_command:
   command: |
-    set -e -o pipefail
-    set -x
+    set -eu -o pipefail
 
     mw app download --target /var/www/html
 
