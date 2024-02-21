@@ -1,8 +1,6 @@
 setup() {
   set -eu -o pipefail
 
-  setup_ssh
-
   export DIR="$( cd "$( dirname "$BATS_TEST_FILENAME" )" >/dev/null 2>&1 && pwd )/.."
   export TESTDIR=~/tmp/test-addon-template
   mkdir -p $TESTDIR
@@ -16,11 +14,6 @@ setup() {
     --web-environment-add=MITTWALD_APP_INSTALLATION_ID=${MITTWALD_APP_INSTALLATION_ID} \
     --web-environment-add=MITTWALD_SSH_USER=${MITTWALD_SSH_USER}
   ddev start -y >/dev/null
-}
-
-setup_ssh() {
-  mkdir -p ~/.ssh
-  echo "${MITTWALD_SSH_PRIVATE_KEY}" > ~/.ssh/id_rsa
 }
 
 health_checks() {
@@ -37,9 +30,7 @@ teardown() {
 }
 
 setup_ssh_in_ddev() {
-  ddev exec 'mkdir -p $HOME/.ssh'
-  echo "${MITTWALD_SSH_PRIVATE_KEY}" | ddev exec --raw -- bash -c 'cat > $HOME/.ssh/id_rsa'
-  ddev exec 'chmod 600 $HOME/.ssh/id_rsa'
+  echo "${MITTWALD_SSH_PRIVATE_KEY}" | docker exec -i ddev-ssh-agent ssh-add -
 }
 
 @test "install from directory" {
@@ -63,15 +54,27 @@ setup_ssh_in_ddev() {
   ddev get ${DIR}
   ddev restart
 
-  echo "${MITTWALD_SSH_PRIVATE_KEY}" | docker exec -i ddev-ssh-agent ssh-add -
-  #setup_ssh_in_ddev
+  setup_ssh_in_ddev
   
   echo "# ddev pull with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
   ddev pull mittwald >&3
 
-  ls -al . >&3
-  
-  test -e assertion_file
+  sha256sum -c <<- EOF
+  8c97bcaed289bbf584bf661550579f3225045e7d07dbb7f16ddc3d0522751095  assertion_file
+EOF
+}
+
+@test "can run mw shell in web container" {
+  set -eu -o pipefail
+
+  cd ${TESTDIR}
+
+  export MITTWALD_SKIP_CONFIG=yes
+
+  ddev get ${DIR}
+  ddev restart
+
+  ddev mw app get
 }
 
 @test "install from release" {
