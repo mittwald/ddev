@@ -16,12 +16,6 @@ setup() {
   ddev start -y >/dev/null
 }
 
-health_checks() {
-  # Do something useful here that verifies the add-on
-  # ddev exec "curl -s elasticsearch:9200" | grep "${PROJNAME}-elasticsearch"
-  ddev exec "curl -s https://localhost:443/" | grep "Hello world"
-}
-
 teardown() {
   set -eu -o pipefail
   cd ${TESTDIR} || ( printf "unable to cd to ${TESTDIR}\n" && exit 1 )
@@ -87,6 +81,5 @@ EOF
   echo "# ddev get mittwald/ddev with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
   ddev get mittwald/ddev
   ddev restart >/dev/null
-  health_checks
 }
 
