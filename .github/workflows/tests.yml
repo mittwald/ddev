@@ -30,6 +30,11 @@ jobs:
 
     steps:
       - uses: ddev/github-action-add-on-test@v1
+        env:
+          MITTWALD_API_TOKEN: ${{ secrets.MITTWALD_API_TOKEN }}
+          MITTWALD_APP_INSTALLATION_ID: ${{ vars.MITTWALD_APP_INSTALLATION_ID }}
+          MITTWALD_SSH_PRIVATE_KEY: ${{ secrets.MITTWALD_SSH_PRIVATE_KEY }}
+          MITTWALD_SSH_USER: ${{ secrets.MITTWALD_SSH_USER }}
         with:
           ddev_version: ${{ matrix.ddev_version }}
           token: ${{ secrets.GITHUB_TOKEN }}

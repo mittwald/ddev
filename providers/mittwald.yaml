@@ -1,0 +1,63 @@
+#ddev-generated
+
+auth_command:
+  command: |
+    set -eu -o pipefail
+
+    if [ -z "${MITTWALD_API_TOKEN}" ] ; then
+      echo "MITTWALD_API_TOKEN must be set"
+      exit 1
+    fi
+
+    mw context set --installation-id "${MITTWALD_APP_INSTALLATION_ID}"
+    mw context set --project-id "$(mw app get -ojson | jq -r '.projectId')"
+
+    if ! mw app ssh --test ; then
+      cat <<- EOF >&2
+        Could not establish an SSH connection to your space. Please make sure your SSH keys
+        are set up correctly; you can use the "mw app ssh --test" command to verify your
+        connection, and the "ddev auth ssh" command to make sure all your SSH keys are
+        available in your web container.
+    EOF
+      exit 1
+    fi
+
+db_pull_command:
+  command: |
+    set -eu -o pipefail
+
+    database_output="/var/www/html/.ddev/.downloads/db.sql.gz"
+    database_id=$(mw app get -ojson | jq -r 'if has("linkedDatabases") then ((.linkedDatabases[] | select(.purpose == "primary")).databaseId) else empty end')
+
+    if [[ -n "${database_id:-}" ]] ; then
+      mw database mysql dump "${database_id}" --gzip -o "${database_output}"
+    else
+      echo "app has no linked database; skipping database import"
+      echo "" | gzip > "${database_output}"
+    fi
+
+files_import_command:
+  command: |
+    set -eu -o pipefail
+
+    mw app download --target /var/www/html
+
+# push is a dangerous command. If not absolutely needed it's better to delete these lines.
+db_push_command:
+  command: |
+    set -eu -o pipefail
+    pushd /var/www/html/.ddev/.downloads >/dev/null;
+
+    database_id=$(mw app get -ojson | jq -r 'if has("linkedDatabases") then ((.linkedDatabases[] | select(.purpose == "primary")).databaseId) else empty end')
+
+    if [[ -n "${database_id:-}" ]] ; then
+      gzip -dc db.sql.gz | mittwald database mysql import "${DATABASE_ID}" -i -
+    else
+      echo "app has no linked database; skipping database export"
+    fi
+
+# push is a dangerous command. If not absolutely needed it's better to delete these lines.
+files_push_command:
+  command: |
+    set -eu -o pipefail
+    mw app upload --source /var/www/html/
