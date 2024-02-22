@@ -33,15 +33,19 @@ setup_ssh_in_ddev() {
   echo "${MITTWALD_SSH_PRIVATE_KEY}" | docker exec -i ddev-ssh-agent ssh-add -
 }
 
+setup_addon_from_dir() {
+  export MITTWALD_SKIP_CONFIG=yes
+
+  ddev get ${DIR}
+  ddev restart >/dev/null
+}
+
 @test "install from directory" {
   set -eu -o pipefail
   cd ${TESTDIR}
 
-  export MITTWALD_SKIP_CONFIG=yes
-
   echo "# ddev get ${DIR} with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
-  ddev get ${DIR}
-  ddev restart
+  setup_addon_from_dir
 }
 
 @test "can pull code from remote" {
@@ -49,11 +53,7 @@ setup_ssh_in_ddev() {
 
   cd ${TESTDIR}
 
-  export MITTWALD_SKIP_CONFIG=yes
-
-  ddev get ${DIR}
-  ddev restart
-
+  setup_addon_from_dir
   setup_ssh_in_ddev
   
   echo "# ddev pull with project ${PROJNAME} in ${TESTDIR} ($(pwd))" >&3
@@ -69,10 +69,7 @@ EOF
 
   cd ${TESTDIR}
 
-  export MITTWALD_SKIP_CONFIG=yes
-
-  ddev get ${DIR}
-  ddev restart
+  setup_addon_from_dir
 
   ddev mw app get
 }
