@@ -84,12 +84,22 @@ post_install_actions:
   export {{ $var }}
   {{ end }}
   {{ end }}
+  {{ range $var := .DdevProjectConfig.web_environment }}
+  {{ if hasPrefix "MITTWALD_" $var }}
+  export {{ $var }}
+  {{ end }}
+  {{ end }}
   
   if [[ -e config.mittwald.yaml || -n "${MITTWALD_SKIP_CONFIG:-}" ]] ; then
     echo "mittwald specific config file already exists"
   else
-    docker run --rm -e MITTWALD_API_TOKEN mittwald/cli mw ddev render-config "${MITTWALD_APP_INSTALLATION_ID}" > config.mittwald.yaml
-    echo "mittwald specific config file written to config.mittwald.yaml"
+    if ! docker run --rm mittwald/cli mw ddev render-config --help >/dev/null ; then
+      echo "The installed version of the mw CLI has no "ddev render-config" command available." >&2
+      echo "Make sure you use the latest version of the mw CLI." >&2
+    else
+      docker run --rm -e MITTWALD_API_TOKEN mittwald/cli mw ddev render-config "${MITTWALD_APP_INSTALLATION_ID}" > config.mittwald.yaml
+      echo "mittwald specific config file written to config.mittwald.yaml"
+    fi
   fi
 
 - |
