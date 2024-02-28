@@ -48,8 +48,15 @@ db_push_command:
     set -eu -o pipefail
     pushd /var/www/html/.ddev/.downloads >/dev/null;
 
-    database_id=$(mw app get -ojson | jq -r 'if has("linkedDatabases") then ((.linkedDatabases[] | select(.purpose == "primary")).databaseId) else empty end')
+    if ! mw database mysql import --help > /dev/null ; then
+      cat <<- EOF >&2
+        The "mw database mysql import" command does not appear to be available.
+        Please make sure that you're using an up-to-date version of the mw cli.
+    EOF
+      exit 1
+    fi
 
+    database_id=$(mw app get -ojson | jq -r 'if has("linkedDatabases") then ((.linkedDatabases[] | select(.purpose == "primary")).databaseId) else empty end')
     if [[ -n "${database_id:-}" ]] ; then
       gzip -dc db.sql.gz | mittwald database mysql import "${DATABASE_ID}" -i -
     else
@@ -60,4 +67,13 @@ db_push_command:
 files_push_command:
   command: |
     set -eu -o pipefail
+
+    if ! mw app upload --help > /dev/null ; then
+      cat <<- EOF >&2
+        The "mw app upload" command does not appear to be available.
+        Please make sure that you're using an up-to-date version of the mw cli.
+    EOF
+      exit 1
+    fi
+
     mw app upload --source /var/www/html/
