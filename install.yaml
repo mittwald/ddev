@@ -16,7 +16,7 @@ pre_install_actions:
   #ddev-description:set mittwald API token
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_API_TOKEN" (list .DdevGlobalConfig.web_environment | toString) }} || {{ contains "MITTWALD_API_TOKEN" (list .DdevProjectConfig.web_environment | toString) }} ); then
-    token="${MITTWALD_API_TOKEN}"
+    token="${MITTWALD_API_TOKEN:-}"
     if [[ -z "${token}" && -z "${DDEV_NONINTERACTIVE}" ]] ; then
       read -s token
     fi
@@ -40,7 +40,7 @@ pre_install_actions:
   #ddev-description:set mittwald app installation ID
   #ddev-nodisplay
   if !( {{ contains "MITTWALD_APP_INSTALLATION_ID" (list .DdevProjectConfig.web_environment | toString) }} ); then
-    app_id="${MITTWALD_APP_INSTALLATION_ID}"
+    app_id="${MITTWALD_APP_INSTALLATION_ID:-}"
     if [[ -z "${app_id}" && -e "${DDEV_NONINTERACTIVE}" ]] ; then
       read app_id
     fi
