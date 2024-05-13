@@ -65,6 +65,8 @@ EOF
 
   setup_addon_from_dir
 
+  ddev mw context set --installation-id ${MITTWALD_APP_INSTALLATION_ID}
+  ddev mw context get
   ddev mw app get
 }
 
