@@ -51,6 +51,7 @@ pre_install_actions:
     fi
 
     ddev config --web-environment-add MITTWALD_APP_INSTALLATION_ID=${app_id}
+    echo "MITTALD_APP_INSTALLATION_ID set to ${app_id}"
   fi
 
 
