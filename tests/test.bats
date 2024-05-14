@@ -12,7 +12,8 @@ setup() {
     --project-name=${PROJNAME} \
     --web-environment-add=MITTWALD_API_TOKEN=${MITTWALD_API_TOKEN} \
     --web-environment-add=MITTWALD_APP_INSTALLATION_ID=${MITTWALD_APP_INSTALLATION_ID} \
-    --web-environment-add=MITTWALD_SSH_USER=${MITTWALD_SSH_USER}
+    --web-environment-add=MITTWALD_SSH_USER=${MITTWALD_SSH_USER} \
+    --web-environment-add=DEBUG=mw:api:*
   ddev start -y >/dev/null
 }
 
