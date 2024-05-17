@@ -7,20 +7,21 @@
 ## ExecRaw: true
 
 function render_rsync_filter_file() {
-    if [[ -e "wp-config.php" ]] ; then
-        echo "- wp-config.php"
-    fi
+    local target_dir="${1}"
+    local excluded_files=("wp-config.php" "typo3temp")
 
-    if [[ -e "typo3temp" ]] ; then
-        echo "- typo3temp"
-    fi
+    for f in ${excluded_files[@]}; do
+        if [[ -e "${target_dir}/${f}" ]] ; then
+            echo "- ${f}"
+        fi
+    done
 
     echo "+ **"
 }
 
 function write_rsync_filter_file() {
     local target_dir="${1}"
-    local filter_file_contents="$(render_rsync_filter_file)"
+    local filter_file_contents="$(render_rsync_filter_file "${target_dir}")"
     local target_file="${target_dir}/.mw-rsync-filter"
 
     if [[ -n "${filter_file_contents}" ]] ; then
