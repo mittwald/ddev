@@ -60,6 +60,7 @@ pre_install_actions:
 # DDEV environment variables can be interpolated into these filenames
 project_files:
 - web-build/Dockerfile.mittwald
+- web-build/mw-util
 - providers/mittwald.yaml
 
 # List of files and directories that are copied into the global .ddev directory
