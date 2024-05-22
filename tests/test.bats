@@ -66,6 +66,7 @@ EOF
   setup_addon_from_dir
 
   local inst_id=$(ddev mw context get -ojson | jq -r '.["installation-id"].value')
+  echo "# compare ${inst_id} with ${MITTWALD_APP_INSTALLATION_ID}"
   [[ "${inst_id}" == "${MITTWALD_APP_INSTALLATION_ID}" ]]
 }
 
