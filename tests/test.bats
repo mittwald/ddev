@@ -65,7 +65,8 @@ EOF
 
   setup_addon_from_dir
 
-  ddev mw app get
+  local inst_id=$(ddev mw context get -ojson | jq -r '.["installation-id"].value')
+  [[ "${inst_id}" == "${MITTWALD_APP_INSTALLATION_ID}" ]]
 }
 
 @test "install from release" {
