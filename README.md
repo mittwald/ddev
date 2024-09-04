@@ -8,9 +8,6 @@
 
 ---
 
-> [!WARNING]
-> Functionality of this addon depends on some unmerged features in the [mittwald CLI](https://github.com/mittwald/cli) (most importantly, https://github.com/mittwald/cli/pull/220). This warning will be removed once all required prerequisites have been merged. See https://github.com/mittwald/feature-requests/issues/118 to track the feature's overall progress.
-
 ## Synopsis
 
 This repository contains a [DDEV addon][addon] for the mittwald hosting platform. It adds the following features to your DDEV project:
