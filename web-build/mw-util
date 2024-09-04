@@ -1,0 +1,64 @@
+#!/usr/bin/env bash
+
+#ddev-generated
+## Description: Various local utilities for mittwald/ddev integration
+## Usage: mw-util [command]
+## Example: mw-util write-filter-files
+## ExecRaw: true
+
+function render_rsync_filter_file() {
+    local target_dir="${1}"
+    local excluded_files=("wp-config.php" "wp-config-ddev.php" "typo3temp")
+
+    for f in ${excluded_files[@]}; do
+        if [[ -e "${target_dir}/${f}" ]] ; then
+            echo "- ${f}"
+        fi
+    done
+
+    echo "+ **"
+}
+
+function write_rsync_filter_file() {
+    local target_dir="${1}"
+    local filter_file_contents="$(render_rsync_filter_file "${target_dir}")"
+    local target_file="${target_dir}/.mw-rsync-filter"
+
+    if [[ -n "${filter_file_contents}" ]] ; then
+        echo "writing rsync filter rules to ${target_file}"
+        echo "${filter_file_contents}" > "${target_file}"
+    else
+        echo "no filter rules known or necessary for project type ${project_type}"
+        rm "${target_file}"
+    fi
+}
+
+function usage() {
+    echo "Usage: mw-util <command>"
+    echo ""
+    echo "Available commands:"
+    echo "  write-filter-files   Write local rsync filter files for common project types"
+    echo ""
+}
+
+function main() {
+    local command="${1}"
+
+    case "${command}" in
+        write-filter-files)
+            write_rsync_filter_file "${2}"
+            ;;
+        "")
+            usage
+            ;;
+        *)
+            echo "unknown command: ${command}" >&2
+            echo ""
+            usage
+
+            exit 1
+            ;;
+    esac
+}
+
+main $@

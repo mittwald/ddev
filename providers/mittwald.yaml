@@ -45,6 +45,7 @@ files_import_command:
     set -eu -o pipefail
 
     mw app download --target /var/www/html
+    mw-util write-filter-files /var/www/html
 
 # push is a dangerous command. If not absolutely needed it's better to delete these lines.
 db_push_command:
