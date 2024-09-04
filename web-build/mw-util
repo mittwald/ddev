@@ -8,7 +8,7 @@
 
 function render_rsync_filter_file() {
     local target_dir="${1}"
-    local excluded_files=("wp-config.php" "typo3temp")
+    local excluded_files=("wp-config.php" "wp-config-ddev.php" "typo3temp")
 
     for f in ${excluded_files[@]}; do
         if [[ -e "${target_dir}/${f}" ]] ; then
