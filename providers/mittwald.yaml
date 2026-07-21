@@ -63,7 +63,7 @@ db_push_command:
 
     database_id=$(mw app get -ojson | jq -r 'if has("linkedDatabases") then ((.linkedDatabases[] | select(.purpose == "primary")).databaseId) else empty end')
     if [[ -n "${database_id:-}" ]] ; then
-      gzip -dc db.sql.gz | mittwald database mysql import "${DATABASE_ID}" -i -
+      gzip -dc db.sql.gz | mw database mysql import "${database_id}" -i -
     else
       echo "app has no linked database; skipping database export"
     fi
